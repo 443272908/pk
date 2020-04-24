@@ -20,7 +20,10 @@ import numpy as np
 #     (2, 'b', 3),
 #     (2, 'b', 13)
 # ]
-
+# 初始化日志
+import loginit
+import logging
+loginit.setup_logging('./logconfig.yml')
 spark = SparkSession \
     .builder \
     .appName("macd") \
@@ -70,6 +73,7 @@ data = [
 # col = ["id", "class", "value1", "value2"]
 col = ["id", "class", "value"]
 df = spark.createDataFrame(data, col)
+logging.info('get substring')
 df = df.withColumn('sub_str',func.substring('class',1,3))
 df.show()
 # w = Window.orderBy('id')
