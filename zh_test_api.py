@@ -6,6 +6,11 @@ import pyspark.sql.functions as func
 from pyspark.sql.types import StringType,TimestampType,FloatType,IntegerType,StructType,StructField
 
 
+# 初始化日志
+import loginit
+import logging
+loginit.setup_logging('./logconfig.yml')
+
 url = "https://quote.investoday.net/quote/codelist?code=stocklist"
 response = requests.get(url)
 response_dict = eval(response.text)
