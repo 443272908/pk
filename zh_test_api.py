@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as func
-from pyspark.sql.types import StringType
+from pyspark.sql.types import StringType,TimestampType,FloatType,IntegerType,StructType,StructField
 
 
 url = "https://quote.investoday.net/quote/codelist?code=stocklist"
@@ -42,16 +42,28 @@ data_dict = response_dict["ret"]
 ret_all_list = []
 for key, value in data_dict.items():
     ret_list = value['ret']
-    ret_list = [[key] + ret for ret in ret_list]
+    ret_list = [[key] + ret[:-1] for ret in ret_list]
     ret_all_list.extend(ret_list)
 result_list.extend(ret_all_list)
-col = ['sec_cd', 'timestamp', 'open', 'high', 'low', 'close', 'vol', 'money']
+# col = ['sec_cd', 'timestamp', 'open', 'high', 'low', 'close', 'vol', 'money']
+col = ['sec_cd', 'timestamp', 'open', 'high', 'low', 'close', 'vol']
 spark = SparkSession \
     .builder \
     .appName("zh_cal_pk") \
+    .master("local[*]") \
     .getOrCreate()
-result_df = spark.createDataFrame(result_list, col)
-result_df.withColumn('date', datetime.strptime(func.substring(func.col('timestamp').cast(StringType()),1 , 10)))
+schema = StructType([
+    StructField('sec_cd', StringType(), True),
+    StructField('timestamp', TimestampType(), True),
+    StructField('open', FloatType(), True),
+    StructField('high', FloatType(), True),
+    StructField('low', FloatType(), True),
+    StructField('close', FloatType(), True),
+    StructField('vol', FloatType(), True),
+])
+result_df = spark.createDataFrame(result_list, col, schema=schema)
+result_df = result_df.withColumn('date', func.substring(func.col('timestamp').cast(StringType()),1, 10))
+# result_df.withColumn('date', datetime.strptime(func.substring(func.col('timestamp').cast(StringType()),1, 10)))
 result_df.show()
 # result_df = pd.DataFrame(result_list, columns=col)
 # result_df['date'] = result_df['timestamp'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:10])))
