@@ -5,6 +5,7 @@ from pyspark.sql.types import StringType,TimestampType,FloatType,IntegerType,Str
 import os
 import platform
 import numpy as np
+import socket
 # 初始化日志
 import loginit
 import logging
@@ -20,8 +21,10 @@ if system == 'Windows':
 elif system == 'Linux':
     logging.info('this is linux system ')
     logging.info('version is: ' + plat_version)
-    os.environ['PYSPARK_PYTHON']='/usr/local/bin/python3'
-    os.environ['PYSPARK_DRIVER_PYTHON']='/usr/local/bin/python3'
+    host_name = socket.gethostname()
+    if 'zhanghang' in host_name:
+        os.environ['PYSPARK_PYTHON']='/usr/local/bin/python3'
+        os.environ['PYSPARK_DRIVER_PYTHON']='/usr/local/bin/python3'
 
 
 def get_psar_realtime_signal(spark_df, cal_trend_ratio):
@@ -149,7 +152,9 @@ if __name__ == "__main__":
         StructField('close', FloatType(), True),
         StructField('vol', FloatType(), True),
     ])
-    k_line_df = spark.read.csv("realtime_data.csv",header=True,schema=schema)
+    csv_path = 'file:///' + os.getcwd() + '/realtime_data.csv'
+    logging.info('input csv_path is :'+str(csv_path))
+    k_line_df = spark.read.csv(csv_path, header=True, schema=schema)
     k_line_df = k_line_df.withColumn('var_cl', func.lit('a'))\
         .withColumn('mkt_cl',func.when(func.substring('sec_cd',8, 9) == 'SZ', 'z').otherwise('s'))
     udf_time_format = func.udf(lambda x: datetime.fromtimestamp(x),TimestampType())
@@ -161,6 +166,6 @@ if __name__ == "__main__":
     k_line_df = k_line_df.withColumn('current_length', func.count('pub_dt').over(w))
     psar_spark_df = get_psar_realtime_signal(k_line_df, cal_trend_ratio)
     psar_spark_df.show()
-    csv_path = os.getcwd()+'/pk_signal.csv'
+    # csv_path = os.getcwd()+'/pk_signal.csv'
     # psar_spark_df.write.option('header', 'true').mode('overwrite').csv(csv_path)
     # psar_spark_df.write.option('header', 'true').mode('overwrite').csv("file:///tmp/a_zhangh/pk_signal.csv")
