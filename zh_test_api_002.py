@@ -168,7 +168,5 @@ if __name__ == "__main__":
     psar_spark_df = get_psar_realtime_signal(k_line_df, cal_trend_ratio)
     csv_output_path = 'file:///' + os.getcwd() + '/pasr_data.csv'
     psar_spark_df.write.option('header','true').mode('overwrite').csv(csv_output_path)
-    # psar_spark_df.show()
-    # csv_path = os.getcwd()+'/pk_signal.csv'
-    # psar_spark_df.write.option('header', 'true').mode('overwrite').csv(csv_path)
-    # psar_spark_df.write.option('header', 'true').mode('overwrite').csv("file:///tmp/a_zhangh/pk_signal.csv")
+    logging.info('output csv_path is :' + str(csv_output_path))
+
