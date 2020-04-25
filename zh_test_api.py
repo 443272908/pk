@@ -1,9 +1,5 @@
 import requests
 import pandas as pd
-from datetime import datetime
-from pyspark.sql import SparkSession
-import pyspark.sql.functions as func
-from pyspark.sql.types import StringType,TimestampType,FloatType,IntegerType,StructType,StructField
 import time
 
 
@@ -11,6 +7,7 @@ import time
 import loginit
 import logging
 loginit.setup_logging('./logconfig.yml')
+
 
 logging.info('begin!!!')
 url = "https://quote.investoday.net/quote/codelist?code=stocklist"
@@ -66,36 +63,7 @@ for key, value in data_dict.items():
     ret_all_list.extend(ret_list)
 result_list.extend(ret_all_list)
 logging.info('all stock ok')
-# col = ['sec_cd', 'timestamp', 'open', 'high', 'low', 'close', 'vol', 'money']
 col = ['sec_cd', 'timestamp', 'open', 'high', 'low', 'close', 'vol']
-# result_df = pd.DataFrame(result_list,columns=col)
-# print(result_df)
-spark = SparkSession \
-    .builder \
-    .appName("zh_cal_pk") \
-    .master("local[*]") \
-    .getOrCreate()
-
-
-schema = StructType([
-    StructField('sec_cd', StringType(), True),
-    StructField('timestamp', TimestampType(), True),
-    StructField('open', FloatType(), True),
-    StructField('high', FloatType(), True),
-    StructField('low', FloatType(), True),
-    StructField('close', FloatType(), True),
-    StructField('vol', FloatType(), True),
-])
-result_df = spark.createDataFrame(result_list, col, schema=schema)
-result_df.show()
-# result_df = result_df.withColumn('date', func.substring(func.col('timestamp').cast(StringType()),1, 10))
-# result_df.withColumn('date', datetime.strptime(func.substring(func.col('timestamp').cast(StringType()),1, 10)))
-# result_df.show()
-# result_df = pd.DataFrame(result_list, columns=col)
-# result_df['date'] = result_df['timestamp'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:10])))
-# def get_count(xdf):
-#     xdf['count'] = len(xdf)
-#     return xdf
-# result_df = result_df.groupby('sec_cd').apply(lambda x: get_count(x))
-# result_df.to_csv('')
-# print(result_df)
+result_df = pd.DataFrame(result_list,columns=col)
+print(result_df)
+result_df.to_csv('realtime_data.csv',index=None)
