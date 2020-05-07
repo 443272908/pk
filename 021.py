@@ -34,31 +34,31 @@ data = [
     (3, 'fasfsaddfsa', 9),
     (2, 'aafdsdfsdsf', 11),
     (4, 'aafsdfdfsa', 13),]
-# data = [
-#     (1, 'a', 10),
-#     (3, 'a', 9),
-#     (2, 'a', 11),
-#     (4, 'a', 13),
-#     (5, 'a', 14),
-#     (1, 'b', 10),
-#     (2, 'b', 6),
-#     (3, 'b', 3),
-#     (4, 'b', 13),
-#     (5, 'b', 14),
-#     (6, 'b', 15),
-#     (4, 'c', 11),
-#     (3, 'c', 12),
-#     (2, 'c', 9),
-#     (5, 'c', None),
-#     (6, 'c', None),
-#     (7, 'c', 9),
-#     (8, 'c', None),
-#     (9, 'c', None),
-#     (10, 'c', 9),
-#     (5, 'd', None),
-#     (6, 'd', None),
-# (7, 'd', 1)
-# ]
+data = [
+    (1, 'a', 10),
+    (3, 'a', 9),
+    (2, 'a', 11),
+    (4, 'a', 13),
+    (5, 'a', 14),
+    (1, 'b', 10),
+    (2, 'b', 6),
+    (3, 'b', 3),
+    (4, 'b', 13),
+    (5, 'b', 14),
+    (6, 'b', 15),
+    (4, 'c', 11),
+    (3, 'c', 12),
+    (2, 'c', 9),
+    (5, 'c', None),
+    (6, 'c', None),
+    (7, 'c', 9),
+    (8, 'c', None),
+    (9, 'c', None),
+    (10, 'c', 9),
+    (5, 'd', None),
+    (6, 'd', None),
+(7, 'd', 1)
+]
 # data = [
 # #     (1, 'a', 10.0, 11),
 # #     (3, 'a', 9.0, 8),
@@ -73,8 +73,9 @@ data = [
 # col = ["id", "class", "value1", "value2"]
 col = ["id", "class", "value"]
 df = spark.createDataFrame(data, col)
-logging.info('get substring')
-df = df.withColumn('sub_str',func.substring('class',1,3))
+# logging.info('get substring')
+# df = df.withColumn('sub_str',func.substring('class',1,3))
+df = df.withColumn('new_value',func.when(func.col('value') < 10, func.col('value')-1).otherwise(100))
 df.show()
 # w = Window.orderBy('id')
 # df.withColumn('row_no',func.row_number().over(w)).show()

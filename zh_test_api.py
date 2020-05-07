@@ -20,8 +20,9 @@ for key, value in data_dict.items():
         stock_list.append(key)
 stock_list = [stock for stock in stock_list if stock[:2] == '00' or stock[:2] == '30' or stock[:2] == '60']
 result_list = []
-for i in range(500, len(stock_list), 500):
-    tmp_stock_list = stock_list[i-500:i]
+every_time_stocks = 500
+for i in range(every_time_stocks, len(stock_list), every_time_stocks):
+    tmp_stock_list = stock_list[i-every_time_stocks:i]
     url = "https://quote.investoday.net/quote/ex-klines?list="
     url += ','.join(tmp_stock_list) + "&period=day&num=-250"
     while True:
@@ -43,7 +44,7 @@ for i in range(500, len(stock_list), 500):
         ret_list = [[key]+ret[:-1] for ret in ret_list]
         ret_all_list.extend(ret_list)
     result_list.extend(ret_all_list)
-    logging.info('500 stock ok')
+    logging.info(str(every_time_stocks) + ' stock ok')
 tmp_stock_list = stock_list[i:]
 url = "https://quote.investoday.net/quote/ex-klines?list="
 url += ','.join(tmp_stock_list) + "&period=day&num=-250"
